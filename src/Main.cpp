@@ -1,9 +1,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Communication/TCPCommunication.h"
+#include "Communication/Communication.h"
 
-using namespace TCPCommunication;
+using namespace Communication;
 
 int main(int argc, char *argv[])
 {

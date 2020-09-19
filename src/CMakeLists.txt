@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 # add the .cpp files of the project
 add_executable(ex4.out
                 Main.cpp
-                Communication/TCPCommunication.cpp
+                Communication/Communication.cpp
                 )
 
 # add the folders of the .h files (to be able to include them)
