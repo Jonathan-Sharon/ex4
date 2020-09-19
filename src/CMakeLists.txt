@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(ex2 VERSION 0.1.0)
+project(ex4 VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,7 +21,7 @@ add_executable(ex4.out
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
                             ${CMAKE_SOURCE_DIR}/Communication
-                            )
+                          )
 
 # include the src directory
 target_link_directories(ex4.out PUBLIC ${PROJECT_SOURCE_DIR})

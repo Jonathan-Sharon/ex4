@@ -1,4 +1,6 @@
+#pragma once
+
 namespace TCPCommunication
 {
-    void connect(const int argv, const char *const argc[]);
+    void connect(const int argc, const char *const argv[]);
 }
