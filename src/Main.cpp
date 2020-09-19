@@ -1,4 +1,5 @@
 #include <stdexcept>
+
 #include "Communication/TCPCommunication.h"
 
 using namespace TCPCommunication;
