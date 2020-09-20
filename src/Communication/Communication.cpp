@@ -96,8 +96,8 @@ void Communication::connect(const int argc, const char *const argv[])
   if ((new_socket = accept(sockfd, (struct sockaddr *)&connectAddress,
                            (socklen_t *)&addrlen)) < 0)
   {
-    perror("accept");
-    exit(EXIT_FAILURE);
+    close(sockfd);
+    THROW_SYSTEM_ERROR();
   }
 
   char buffer[1024]{{0}};
