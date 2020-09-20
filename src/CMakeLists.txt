@@ -16,11 +16,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 add_executable(ex4.out
                 Main.cpp
                 Communication/Communication.cpp
+                ThreadPool/ThreadPool.cpp
                 )
 
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
                             ${CMAKE_SOURCE_DIR}/Communication
+                            ${CMAKE_SOURCE_DIR}/ThreadPool
                           )
 
 # include the src directory
