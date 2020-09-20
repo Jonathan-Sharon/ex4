@@ -18,6 +18,12 @@ namespace Queue
         int sockfd;
     };
 
+    struct timeRead
+    {
+        time_t lastReadTime;
+        int sockfd;
+    };
+
     struct operate
     {
         Operate operator;
@@ -49,10 +55,12 @@ namespace Queue
         std::atomic_uint m_numberOfAvailableThreads;
 
         std::queue<read> m_readQueue;
+        std::vector<timeRead> m_timeReadVector;
         std::queue<operate> m_operateQueue;
         std::queue<write> m_writeQueue;
 
         std::mutex m_readQueueMutex;
+        std::mutex m_timeReadVectorMutex;
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
     };
