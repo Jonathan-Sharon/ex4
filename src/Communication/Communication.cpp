@@ -74,7 +74,7 @@ void Communication::connect(const int argc, const char *const argv[])
   bool isSerial;
   if ((isParallel = (argc == 2 || strcmp(argv[argc - 1], "parallel") == 0)) == true)
   {
-    backlog = std::thread::hardware_concurrency() / 3;
+    backlog = std::thread::hardware_concurrency();
   }
   else if ((isSerial = (strcmp(argv[argc - 1], "serial") == 0)) == true)
   {
