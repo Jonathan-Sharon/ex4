@@ -1,23 +1,23 @@
 #pragma once
 
-#include "../ThreadPool/ThreadPool.h"
+#include "../ThreadPool/StructParameters.h"
 
 namespace Write
 {
     class Write
     {
     public:
-        virtual void write(const ThreadPool::write info) const;
+        virtual void write(const ThreadPool::writeParameters info) const;
         virtual ~Write() = default;
     };
 
     class FirstWrite : public Write
     {
-        virtual void write(const ThreadPool::write info) const override;
+        virtual void write(const ThreadPool::writeParameters info) const override;
     };
 
     class SecondWrite : public Write
     {
-        virtual void write(const ThreadPool::write info) const override;
+        virtual void write(const ThreadPool::writeParameters info) const override;
     };
 } // namespace Write
