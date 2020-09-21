@@ -18,7 +18,7 @@ namespace ThreadPool
         int sockfd;
     };
 
-    struct timeRead
+    struct waitForRead
     {
         time_t lastReadTime;
         int sockfd;
@@ -34,7 +34,9 @@ namespace ThreadPool
     {
         Write writer;
         std::unique_ptr<std::string> result;
+        double version;
         int sockfd;
+        uint errorCode;
     };
 
     class Queue
@@ -66,6 +68,14 @@ namespace ThreadPool
      */
         void wait();
 
+        /**
+         * @brief In this section we check, using the select() function
+         * If there is a read to do in the vector of file descriptors.
+         * If there is, then it calls the Read factory.
+         * 
+         */
+        void checkActiveFd();
+
         const int m_sockfd;
         const sockaddr_in m_connectAddress;
         const unsigned int m_numberOfThreads;
@@ -75,12 +85,12 @@ namespace ThreadPool
         std::atomic_uint m_numberOfAvailableThreads;
 
         std::queue<read> m_readQueue;
-        std::vector<timeRead> m_timeReadVector;
+        std::vector<waitForRead> m_waitForReadVector;
         std::queue<operate> m_operateQueue;
         std::queue<write> m_writeQueue;
 
         std::mutex m_readQueueMutex;
-        std::mutex m_timeReadVectorMutex;
+        std::mutex m_waitForReadVectorMutex;
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
     };
