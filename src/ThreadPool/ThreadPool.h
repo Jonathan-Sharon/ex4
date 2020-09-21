@@ -9,7 +9,7 @@
 #include <atomic>
 #include <mutex>
 
-namespace Queue
+namespace ThreadPool
 {
     struct read
     {
@@ -40,10 +40,30 @@ namespace Queue
     class Queue
     {
     public:
+        /**
+     * @brief Construct a new Queue object
+     * 
+     * @param sockfd the socket file descriptor
+     * @param connectAddress the connection address - used when doing accept
+     * @param numberOfThreads number of threads to support the operation.
+     *                        if it equals to 1, then the server is serial.
+     */
         explicit Queue(const int sockfd, const sockaddr_in connectAddress, const unsigned int numberOfThreads);
+        /**
+         * @brief waits until there is an Read/Operation/Write to do. Once there is,
+         * it does it.
+         * 
+         */
         void allocate();
 
     private:
+        /**
+     * @brief only return when there is Read/Operation/Write to do.
+     * If one of the open file descriptors has something to send
+     * then it calls for the Read constructor to add something to the read queue.
+     * If more than 5 seconds have passed, it closes the file descriptors
+     * 
+     */
         void wait();
 
         const int m_sockfd;
@@ -64,4 +84,4 @@ namespace Queue
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
     };
-} // namespace Queue
+} // namespace ThreadPool
