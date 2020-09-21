@@ -1,8 +1,14 @@
 #pragma once
 
+#include "StructParameters.h"
+
 #include <arpa/inet.h>
 
-#include <memory>
+#include "../Read/Read.h"
+#include "../Write/Write.h"
+#include "../Operations/Operate.h"
+#include "../Factory/ReadCreator.h"
+
 #include <queue>
 #include <thread>
 #include <vector>
@@ -11,37 +17,38 @@
 
 namespace ThreadPool
 {
-    struct read
-    {
-        Read reader;
-        time_t lastReadTime;
-        int sockfd;
-    };
-
     struct waitForRead
     {
         time_t lastReadTime;
         int sockfd;
+        std::string readType;
+        std::string lastReadData;
+    };
+
+    struct read
+    {
+        Read::Read reader;
+        readParameters parameters;
     };
 
     struct operate
     {
-        Operate operator;
-        int sockfd;
+        Operate::Operate operation;
+        operateParameters parameters;
     };
 
     struct write
     {
-        Write writer;
-        std::unique_ptr<std::string> result;
-        double version;
-        int sockfd;
-        uint errorCode;
+        Write::Write writer;
+        writeParameters parameters;
     };
 
     class Queue
     {
     public:
+        friend void ReadCreator::FirstReadCreator::create(const int sockfd);
+        friend void ReadCreator::SecondReadCreator::create(const int sockfd);
+
         /**
      * @brief Construct a new Queue object
      * 
