@@ -1,13 +1,19 @@
 #pragma once
 
 #include "StructParameters.h"
+#include "StructQueue.h"
 
 #include <arpa/inet.h>
 
-#include "../Read/Read.h"
+/**#include "../Read/Read.h"
 #include "../Write/Write.h"
 #include "../Operations/Operate.h"
+*/
+
 #include "../Factory/ReadCreator.h"
+#include "../Factory/WriteCreator.h"
+#include "../Factory/OperateCreator.h"
+#include "../Factory/WaitForReadCreator.h"
 
 #include <queue>
 #include <thread>
@@ -17,15 +23,8 @@
 
 namespace ThreadPool
 {
-    struct waitForRead
-    {
-        time_t lastReadTime;
-        int sockfd;
-        std::string readType;
-        std::string lastReadData;
-    };
 
-    struct read
+    /**struct read
     {
         std::unique_ptr<Read::Read> reader;
         readParameters parameters;
@@ -42,13 +41,11 @@ namespace ThreadPool
         std::unique_ptr<Write::Write> writer;
         writeParameters parameters;
     };
+    */
 
     class Queue
     {
     public:
-        friend void ReadCreator::FirstReadCreator::create(const int sockfd);
-        friend void ReadCreator::SecondReadCreator::create(const int sockfd);
-
         /**
      * @brief Construct a new Queue object
      * 
@@ -100,5 +97,29 @@ namespace ThreadPool
         std::mutex m_waitForReadVectorMutex;
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
+
+        friend void ReadCreator::FirstReadCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                              const ThreadPool::readParameters info) const;
+        friend void ReadCreator::SecondReadCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                               const ThreadPool::readParameters info) const;
+
+        friend void WriteCreator::FirstWriteCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                                const ThreadPool::writeParameters info) const;
+        friend void WriteCreator::SecondWriteCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                                 const ThreadPool::writeParameters info) const;
+        friend void WriteCreator::ErrorWriteCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                                const ThreadPool::writeParameters info) const;
+
+        friend void OperateCreator::DFSCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                           const ThreadPool::operateParameters info) const;
+        friend void OperateCreator::BFSCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                           const ThreadPool::operateParameters info) const;
+        friend void OperateCreator::BestFSCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                              const ThreadPool::operateParameters info) const;
+        friend void OperateCreator::AStarCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                             const ThreadPool::operateParameters info) const;
+
+        friend void WaitForReadCreator::WaitForReadCreator::addToQueue(const ThreadPool::Queue &queue,
+                                                                       const ThreadPool::waitForRead info) const;
     };
 } // namespace ThreadPool
