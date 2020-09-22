@@ -98,28 +98,18 @@ namespace ThreadPool
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
 
-        friend void ReadCreator::FirstReadCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                              const ThreadPool::readParameters info) const;
-        friend void ReadCreator::SecondReadCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                               const ThreadPool::readParameters info) const;
+        friend class FirstReadCreator;
+        friend class SecondReadCreator;
 
-        friend void WriteCreator::FirstWriteCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                                const ThreadPool::writeParameters info) const;
-        friend void WriteCreator::SecondWriteCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                                 const ThreadPool::writeParameters info) const;
-        friend void WriteCreator::ErrorWriteCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                                const ThreadPool::writeParameters info) const;
+        friend class FirstWriteCreator;
+        friend class SecondWriteCreator;
+        friend class ErrorWriteCreator;
 
-        friend void OperateCreator::DFSCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                           const ThreadPool::operateParameters info) const;
-        friend void OperateCreator::BFSCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                           const ThreadPool::operateParameters info) const;
-        friend void OperateCreator::BestFSCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                              const ThreadPool::operateParameters info) const;
-        friend void OperateCreator::AStarCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                             const ThreadPool::operateParameters info) const;
+        friend class DFSCreator;
+        friend class BFSCreator;
+        friend class BestFSCreator;
+        friend class AStarCreator;
 
-        friend void WaitForReadCreator::WaitForReadCreator::addToQueue(const ThreadPool::Queue &queue,
-                                                                       const ThreadPool::waitForRead info) const;
+        friend class WaitForReadCreator;
     };
 } // namespace ThreadPool

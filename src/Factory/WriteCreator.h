@@ -8,31 +8,31 @@ namespace ThreadPool
     class Queue;
 }
 
-namespace WriteCreator
+namespace ThreadPool
 {
     class WriteCreator
     {
     public:
-        virtual void addToQueue(const ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const = 0;
+        virtual void addToQueue(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const = 0;
         virtual ~WriteCreator() = default;
     };
 
     class FirstWriteCreator : public WriteCreator
     {
     public:
-        virtual void addToQueue(const ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
+        virtual void addToQueue(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
     };
 
     class SecondWriteCreator : public WriteCreator
     {
     public:
-        virtual void addToQueue(const ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
+        virtual void addToQueue(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
     };
 
     class ErrorWriteCreator : public WriteCreator
     {
     public:
-        virtual void addToQueue(const ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
+        virtual void addToQueue(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
     };
 
-} // namespace WriteCreator
+} // namespace ThreadPool

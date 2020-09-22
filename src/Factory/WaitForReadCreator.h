@@ -8,11 +8,11 @@ namespace ThreadPool
     class Queue;
 }
 
-namespace WaitForReadCreator
+namespace ThreadPool
 {
     class WaitForReadCreator
     {
     public:
-        void addToQueue(const ThreadPool::Queue &queue, const ThreadPool::waitForRead info) const;
+        void addToQueue(ThreadPool::Queue &queue, const ThreadPool::waitForRead info) const;
     };
-} // namespace WaitForReadCreator
+} // namespace ThreadPool
