@@ -1,7 +1,5 @@
 #include "ReadCreator.h"
 
-#include "../Read/Read.h"
-
 #include <memory>
 #include <mutex>
 
