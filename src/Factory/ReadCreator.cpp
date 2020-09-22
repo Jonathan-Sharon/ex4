@@ -5,8 +5,6 @@
 #include <memory>
 #include <mutex>
 
-using namespace ThreadPool;
-
 void ThreadPool::FirstReadCreator::addToQueue(ThreadPool::Queue &queue,
                                               const ThreadPool::readParameters info) const
 {
