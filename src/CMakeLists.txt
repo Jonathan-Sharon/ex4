@@ -17,9 +17,17 @@ add_executable(ex4.out
                 Main.cpp
                 Communication/Communication.cpp
                 ThreadPool/ThreadPool.cpp
-                Factory/Factory.cpp
                 Factory/ReadCreator.cpp
+                Factory/OperateCreator.cpp
+                Factory/WaitForReadCreator.cpp
+                Factory/WriteCreator.cpp
+                Read/Read.cpp
+                Write/Write.cpp
+                Operations/Operate.cpp
                 )
+
+# add the thread library
+target_link_libraries(ex4.out pthread)
 
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
