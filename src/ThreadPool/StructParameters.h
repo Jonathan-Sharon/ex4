@@ -23,4 +23,5 @@ namespace ThreadPool
         int sockfd;
         uint errorCode;
     };
+
 } // namespace ThreadPool
