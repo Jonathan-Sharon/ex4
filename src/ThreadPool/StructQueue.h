@@ -1,11 +1,27 @@
 #pragma once
 
+#include "StructParameters.h"
+
 #include "../Read/Read.h"
 #include "../Write/Write.h"
 #include "../Operations/Operate.h"
 
 #include <memory>
-#include <StructParameters.h>
+
+namespace Read
+{
+    class Read;
+}
+
+namespace Write
+{
+    class Write;
+}
+
+namespace Operate
+{
+    class Operate;
+}
 
 namespace ThreadPool
 {
@@ -19,19 +35,19 @@ namespace ThreadPool
 
     struct read
     {
-        std::unique_ptr<Read::Read> reader;
+        std::shared_ptr<Read::Read> reader;
         readParameters parameters;
     };
 
     struct operate
     {
-        std::unique_ptr<Operate::Operate> operation;
+        std::shared_ptr<Operate::Operate> operation;
         operateParameters parameters;
     };
 
     struct write
     {
-        std::unique_ptr<Write::Write> writer;
+        std::shared_ptr<Write::Write> writer;
         writeParameters parameters;
     };
 } // namespace ThreadPool
