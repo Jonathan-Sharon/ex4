@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../ThreadPool/ThreadPool.h"
-#include "../ThreadPool/StructQueue.h"
 
 namespace ThreadPool
 {

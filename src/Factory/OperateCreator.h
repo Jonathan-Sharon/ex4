@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../ThreadPool/ThreadPool.h"
-#include "../Operations/Operate.h"
 
 namespace ThreadPool
 {

@@ -5,6 +5,10 @@
 
 #include <arpa/inet.h>
 
+#include "../Read/Read.h"
+#include "../Operations/Operate.h"
+#include "../Write/Write.h"
+
 #include "../Factory/ReadCreator.h"
 #include "../Factory/WriteCreator.h"
 #include "../Factory/OperateCreator.h"
