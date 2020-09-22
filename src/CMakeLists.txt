@@ -17,12 +17,18 @@ add_executable(ex4.out
                 Main.cpp
                 Communication/Communication.cpp
                 ThreadPool/ThreadPool.cpp
+                Factory/Factory.cpp
+                Factory/ReadCreator.cpp
                 )
 
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
                             ${CMAKE_SOURCE_DIR}/Communication
                             ${CMAKE_SOURCE_DIR}/ThreadPool
+                            ${CMAKE_SOURCE_DIR}/Factory
+                            ${CMAKE_SOURCE_DIR}/Read
+                            ${CMAKE_SOURCE_DIR}/Write
+                            ${CMAKE_SOURCE_DIR}/Operations
                           )
 
 # include the src directory
