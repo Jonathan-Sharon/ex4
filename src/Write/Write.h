@@ -21,7 +21,7 @@ namespace Write
         virtual void write(const ThreadPool::writeParameters info) const override;
     };
 
-    class SecondWrite : public Write
+    class ErrorWrite : public Write
     {
         virtual void write(const ThreadPool::writeParameters info) const override;
     };
