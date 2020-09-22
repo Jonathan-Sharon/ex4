@@ -7,7 +7,7 @@ namespace Operate
     class Operate
     {
     public:
-        virtual void operate(const ThreadPool::operateParameters info) const;
+        virtual void operate(const ThreadPool::operateParameters info) const = 0;
         virtual ~Operate() = default;
     };
 

@@ -7,7 +7,7 @@ namespace Write
     class Write
     {
     public:
-        virtual void write(const ThreadPool::writeParameters info) const;
+        virtual void write(const ThreadPool::writeParameters info) const = 0;
         virtual ~Write() = default;
     };
 

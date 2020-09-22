@@ -27,19 +27,19 @@ namespace ThreadPool
 
     struct read
     {
-        Read::Read reader;
+        std::unique_ptr<Read::Read> reader;
         readParameters parameters;
     };
 
     struct operate
     {
-        Operate::Operate operation;
+        std::unique_ptr<Operate::Operate> operation;
         operateParameters parameters;
     };
 
     struct write
     {
-        Write::Write writer;
+        std::unique_ptr<Write::Write> writer;
         writeParameters parameters;
     };
 

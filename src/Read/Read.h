@@ -7,7 +7,7 @@ namespace Read
     class Read
     {
     public:
-        virtual void read(const ThreadPool::readParameters info) const;
+        virtual void read(const ThreadPool::readParameters info) const = 0;
         virtual ~Read() = default;
     };
 
