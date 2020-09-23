@@ -7,15 +7,14 @@
 
 #include "../Factory/MapCreator.h"
 
-
-
 #include <queue>
 #include <thread>
 #include <vector>
 #include <atomic>
 #include <mutex>
 
-namespace MapCreator{
+namespace MapCreator
+{
     class MapCreator;
 }
 
@@ -42,6 +41,8 @@ namespace ThreadPool
         void allocate();
 
     private:
+        static constexpr int TIME_TO_CLOSE = 5;
+
         /**
      * @brief only return when there is Read/Operation/Write to do.
      * If one of the open file descriptors has something to send

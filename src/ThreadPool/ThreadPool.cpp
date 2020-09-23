@@ -4,7 +4,11 @@
 
 #include "ThreadPool.h"
 
+#include "../Factory/WaitForReadCreator.h"
+#include "../Factory/ReadCreator.h"
+
 #include <algorithm>
+#include <functional>
 
 ThreadPool::Queue::Queue(const int sockfd, const sockaddr_in connectAddress,
                          const unsigned int numberOfThreads) : m_sockfd{sockfd},
@@ -12,7 +16,8 @@ ThreadPool::Queue::Queue(const int sockfd, const sockaddr_in connectAddress,
                                                                m_numberOfThreads{numberOfThreads},
                                                                m_isSerial{numberOfThreads == 1},
                                                                m_isThereSomethingToRead{false},
-                                                               m_numberOfAvailableThreads{numberOfThreads - 1}
+                                                               m_numberOfAvailableThreads{numberOfThreads - 1},
+                                                               m_mapCreator{std::make_unique<MapCreator::MapCreator>()}
 {
 }
 
@@ -20,6 +25,7 @@ void ThreadPool::Queue::allocate()
 {
     while (true)
     {
+
         //Wait until there is operation to do with an available thread
         wait();
 
@@ -30,8 +36,8 @@ void ThreadPool::Queue::allocate()
             //in the queue using the main thread.
             if (m_isSerial == true)
             {
-                m_writeQueue.front().writer.write(m_writeQueue.front().result, m_writeQueue.front().version,
-                                                  m_writeQueue.front().sockfd, m_writeQueue.front().errorCode);
+                m_writeQueue.front().writer.get()->write(*this, m_writeQueue.front().parameters);
+                --m_numberOfAvailableThreads;
                 m_writeQueue.pop();
                 continue;
             }
@@ -41,9 +47,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Write operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_writeQueueMutex);
-            std::thread(m_writeQueue.front().writer.write,
-                        m_writeQueue.front().result, m_writeQueue.front().version,
-                        m_writeQueue.front().sockfd, m_writeQueue.front().errorCode);
+            std::thread(writeThread, std::ref(*this), m_writeQueue.front());
             --m_numberOfAvailableThreads;
             m_writeQueue.pop();
             continue;
@@ -56,7 +60,8 @@ void ThreadPool::Queue::allocate()
             //in the queue using the main thread.
             if (m_isSerial == true)
             {
-                m_operateQueue.front().operator.operate(m_operateQueue.front().sockfd);
+                m_operateQueue.front().operation.get()->operate(*this, m_operateQueue.front().parameters);
+                --m_numberOfAvailableThreads;
                 m_operateQueue.pop();
                 continue;
             }
@@ -66,7 +71,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Operate operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_operateQueueMutex);
-            std::thread(m_operateQueue.front().operator.operate, m_operateQueue.front().sockfd);
+            std::thread(operateThread, std::ref(*this), m_operateQueue.front());
             --m_numberOfAvailableThreads;
             m_operateQueue.pop();
             continue;
@@ -79,7 +84,8 @@ void ThreadPool::Queue::allocate()
             //in the queue using the main thread.
             if (m_isSerial == true)
             {
-                m_readQueue.front().reader.read(m_readQueue.front().sockfd);
+                m_readQueue.front().reader.get()->read(*this, m_readQueue.front().parameters);
+                --m_numberOfAvailableThreads;
                 m_readQueue.pop();
                 continue;
             }
@@ -89,7 +95,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Read operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_readQueueMutex);
-            std::thread(m_readQueue.front().reader.read, m_readQueue.front().sockfd);
+            std::thread(readThread, std::ref(*this), m_readQueue.front());
             --m_numberOfAvailableThreads;
             m_readQueue.pop();
             continue;
@@ -147,24 +153,26 @@ void ThreadPool::Queue::checkActiveFd()
     //get the current time
     std::time_t currentTime = std::time(nullptr);
 
-    std::unique_lock<std::mutex> lock(m_waitForReadVectorMutex);
-    for (int i{static_cast<int>(m_waitForReadVector.size() - 1)}; i >= 0; --i)
     {
-        //Check if 5 seconds have passed.
-        //If so, close the connection
-        if (m_waitForReadVector[i].lastReadTime + 5 <= currentTime)
+        std::unique_lock<std::mutex> lock(m_waitForReadVectorMutex);
+        for (int i{static_cast<int>(m_waitForReadVector.size() - 1)}; i >= 0; --i)
         {
-            m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
-            close(m_waitForReadVector[i].sockfd);
-        }
+            //Check if 5 seconds have passed.
+            //If so, close the connection
+            if (m_waitForReadVector[i].lastReadTime + TIME_TO_CLOSE <= currentTime)
+            {
+                m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
+                close(m_waitForReadVector[i].sockfd);
+            }
 
-        //add to read list
-        FD_SET(m_waitForReadVector[i].sockfd, &readfds);
+            //add to read list
+            FD_SET(m_waitForReadVector[i].sockfd, &readfds);
 
-        //highest file descriptor number, need it for the select function
-        if (m_waitForReadVector[i].sockfd > maxSd)
-        {
-            maxSd = m_waitForReadVector[i].sockfd;
+            //highest file descriptor number, need it for the select function
+            if (m_waitForReadVector[i].sockfd > maxSd)
+            {
+                maxSd = m_waitForReadVector[i].sockfd;
+            }
         }
     }
 
@@ -182,16 +190,47 @@ void ThreadPool::Queue::checkActiveFd()
     //then its an incoming connection
     if (FD_ISSET(m_sockfd, &readfds))
     {
-        //factoryOfRead
+        //accept the communication
+        int new_socket, addrlen{sizeof(m_connectAddress)};
+        if ((new_socket = accept(m_sockfd, (struct sockaddr *)&m_connectAddress,
+                                 (socklen_t *)&addrlen)) < 0)
+        {
+            close(m_sockfd);
+            throw std::system_error{errno, std::system_category()};
+        }
+
+        //add the new communication to the "Wait For Read" Queue
+        ThreadPool::WaitForReadCreator waitFroReadCreator;
+        waitFroReadCreator.addToQueue(*this, {std::time(nullptr), new_socket, "First Read", ""});
     }
 
-    //Check all other waiting reads to see if they have incoming communication
-    for (int i{static_cast<int>(m_waitForReadVector.size() - 1)}; i >= 0; --i)
     {
-        if (FD_ISSET(m_waitForReadVector[i].sockfd, &readfds))
+        std::unique_lock<std::mutex> lock(m_waitForReadVectorMutex);
+
+        //Check all other waiting reads to see if they have incoming communication
+        for (int i{static_cast<int>(m_waitForReadVector.size() - 1)}; i >= 0; --i)
         {
-            //factoryOfRead
-            m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
+            if (FD_ISSET(m_waitForReadVector[i].sockfd, &readfds))
+            {
+                //add the communication to the "Read" queue
+                m_mapCreator.get()->atReadMap(m_waitForReadVector[i].readType).get()->addToQueue(*this, {m_waitForReadVector[i].lastReadData, m_waitForReadVector[i].sockfd});
+                m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
+            }
         }
     }
+}
+
+void ThreadPool::readThread(Queue &queue, const read read)
+{
+    read.reader.get()->read(queue, read.parameters);
+}
+
+void ThreadPool::writeThread(Queue &queue, const write write)
+{
+    write.writer.get()->write(queue, write.parameters);
+}
+
+void ThreadPool::operateThread(Queue &queue, const operate operate)
+{
+    operate.operation.get()->operate(queue, operate.parameters);
 }

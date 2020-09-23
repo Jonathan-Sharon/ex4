@@ -7,6 +7,7 @@ namespace ThreadPool
 {
     struct readParameters
     {
+        std::string_view lastReadData;
         int sockfd;
     };
 

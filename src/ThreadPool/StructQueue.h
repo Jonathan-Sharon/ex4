@@ -29,8 +29,8 @@ namespace ThreadPool
     {
         time_t lastReadTime;
         int sockfd;
-        std::string readType;
-        std::string lastReadData;
+        std::string_view readType;
+        std::string_view lastReadData;
     };
 
     struct read
