@@ -71,18 +71,10 @@ void Communication::connect(const int argc, const char *const argv[])
   //If the type is not "parallel" or "serial" - then throw an error.
   //Also, define the backlog - the number of clients which can wait
   //According to the server-type
-  unsigned int backlog;
-  bool isParallel;
-  bool isSerial;
-  if ((isParallel = (argc == 2 || strcmp(argv[argc - 1], "parallel") == 0)) == true)
-  {
-    backlog = std::thread::hardware_concurrency();
-  }
-  else if ((isSerial = (strcmp(argv[argc - 1], "serial") == 0)) == true)
-  {
-    backlog = 3;
-  }
-  else
+  unsigned int backlog = SERVER_BACKLOG;
+  bool isParallel = (argc == 2 || strcmp(argv[argc - 1], "parallel") == 0) ? true : false;
+  bool isSerial = (strcmp(argv[argc - 1], "serial") == 0) ? true : false;
+  if (isSerial == false && isParallel == false)
   {
     throw std::runtime_error("invalid server-type");
   }

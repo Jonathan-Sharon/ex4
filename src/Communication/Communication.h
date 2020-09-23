@@ -10,4 +10,6 @@ namespace Communication
      * @param argv the arguments
      */
     void connect(const int argc, const char *const argv[]);
+
+    constexpr static int SERVER_BACKLOG = 20;
 }
