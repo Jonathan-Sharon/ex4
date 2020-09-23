@@ -42,6 +42,7 @@ namespace ThreadPool
 
     private:
         static constexpr int TIME_TO_CLOSE = 5;
+        static constexpr double VERSION = 1.0;
 
         /**
      * @brief only return when there is Read/Operation/Write to do.
