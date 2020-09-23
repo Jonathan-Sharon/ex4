@@ -235,3 +235,8 @@ void ThreadPool::operateThread(Queue &queue, const operate operate)
 {
     operate.operation.get()->operate(queue, operate.parameters);
 }
+
+void ThreadPool::Queue::addAvailableThread()
+{
+    ++m_numberOfAvailableThreads;
+}

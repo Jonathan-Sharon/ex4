@@ -12,10 +12,13 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
     {
         ThreadPool::ErrorWriteCreator errorWriteCreate;
         errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, 1});
+        queue.addAvailableThread();
+        return;
     }
 
     ThreadPool::FirstWriteCreator firstWriteCreator;
     firstWriteCreator.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, 0});
+    queue.addAvailableThread();
 }
 
 void Read::SecondRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::readParameters info) const

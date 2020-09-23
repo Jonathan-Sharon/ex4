@@ -40,6 +40,8 @@ namespace ThreadPool
          */
         void allocate();
 
+        void addAvailableThread();
+
     private:
         static constexpr int TIME_TO_CLOSE = 5;
         static constexpr double VERSION = 1.0;
