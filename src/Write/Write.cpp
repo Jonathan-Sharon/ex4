@@ -11,10 +11,8 @@ void Write::FirstWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool:
     {
         ThreadPool::ErrorWriteCreator errorWriteCreate;
         errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, 1});
-        queue.addAvailableThread();
         return;
     }
-    queue.addAvailableThread();
     close(info.sockfd);
 }
 
