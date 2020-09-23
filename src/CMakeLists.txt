@@ -21,6 +21,7 @@ add_executable(ex4.out
                 Factory/OperateCreator.cpp
                 Factory/WaitForReadCreator.cpp
                 Factory/WriteCreator.cpp
+                Factory/MapCreator.cpp
                 Read/Read.cpp
                 Write/Write.cpp
                 Operations/Operate.cpp
@@ -32,8 +33,8 @@ target_link_libraries(ex4.out pthread)
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
                             ${CMAKE_SOURCE_DIR}/Communication
-                            ${CMAKE_SOURCE_DIR}/ThreadPool
                             ${CMAKE_SOURCE_DIR}/Factory
+                            ${CMAKE_SOURCE_DIR}/ThreadPool
                             ${CMAKE_SOURCE_DIR}/Read
                             ${CMAKE_SOURCE_DIR}/Write
                             ${CMAKE_SOURCE_DIR}/Operations

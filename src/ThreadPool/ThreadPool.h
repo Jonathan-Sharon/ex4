@@ -5,14 +5,9 @@
 
 #include <arpa/inet.h>
 
-#include "../Read/Read.h"
-#include "../Operations/Operate.h"
-#include "../Write/Write.h"
+#include "../Factory/MapCreator.h"
 
-#include "../Factory/ReadCreator.h"
-#include "../Factory/WriteCreator.h"
-#include "../Factory/OperateCreator.h"
-#include "../Factory/WaitForReadCreator.h"
+
 
 #include <queue>
 #include <thread>
@@ -20,27 +15,12 @@
 #include <atomic>
 #include <mutex>
 
+namespace MapCreator{
+    class MapCreator;
+}
+
 namespace ThreadPool
 {
-
-    /**struct read
-    {
-        std::unique_ptr<Read::Read> reader;
-        readParameters parameters;
-    };
-
-    struct operate
-    {
-        std::unique_ptr<Operate::Operate> operation;
-        operateParameters parameters;
-    };
-
-    struct write
-    {
-        std::unique_ptr<Write::Write> writer;
-        writeParameters parameters;
-    };
-    */
 
     class Queue
     {
@@ -87,6 +67,8 @@ namespace ThreadPool
         std::atomic_bool m_isThereSomethingToRead;
         std::atomic_uint m_numberOfAvailableThreads;
 
+        std::unique_ptr<MapCreator::MapCreator> m_mapCreator;
+
         std::queue<read> m_readQueue;
         std::vector<waitForRead> m_waitForReadVector;
         std::queue<operate> m_operateQueue;
@@ -111,4 +93,9 @@ namespace ThreadPool
 
         friend class WaitForReadCreator;
     };
+
+    void readThread(Queue &queue, const read read);
+    void writeThread(Queue &queue, const write write);
+    void operateThread(Queue &queue, const operate operate);
+
 } // namespace ThreadPool

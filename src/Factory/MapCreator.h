@@ -1,11 +1,18 @@
 #pragma once
 
-#include "../Read/Read.h"
-#include "../Operations/Operate.h"
-#include "../Write/Write.h"
+#include "ReadCreator.h"
+#include "WriteCreator.h"
+#include "OperateCreator.h"
 
 #include <map>
 #include <string_view>
+
+namespace ThreadPool{
+    class ReadCreator;
+    class WriteCreator;
+    class OperateCreator;
+}
+
 
 namespace MapCreator
 {
