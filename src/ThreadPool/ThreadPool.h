@@ -40,8 +40,6 @@ namespace ThreadPool
          */
         void allocate();
 
-        void addAvailableThread();
-
     private:
         static constexpr int TIME_TO_CLOSE = 5;
         static constexpr double VERSION = 1.0;
@@ -63,6 +61,8 @@ namespace ThreadPool
          */
         void checkActiveFd();
 
+        void joinThreads();
+
         const int m_sockfd;
         const sockaddr_in m_connectAddress;
         const unsigned int m_numberOfThreads;
@@ -82,6 +82,8 @@ namespace ThreadPool
         std::mutex m_waitForReadVectorMutex;
         std::mutex m_writeQueueMutex;
         std::mutex m_operateQueueMutex;
+
+        std::vector<std::thread> m_threadVector;
 
         friend class FirstReadCreator;
         friend class SecondReadCreator;

@@ -37,7 +37,6 @@ void ThreadPool::Queue::allocate()
             if (m_isSerial == true)
             {
                 m_writeQueue.front().writer.get()->writeMessage(*this, m_writeQueue.front().parameters);
-                --m_numberOfAvailableThreads;
                 m_writeQueue.pop();
                 continue;
             }
@@ -47,7 +46,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Write operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_writeQueueMutex);
-            std::thread(writeThread, std::ref(*this), m_writeQueue.front());
+            m_threadVector.push_back(std::thread(writeThread, std::ref(*this), m_writeQueue.front()));
             --m_numberOfAvailableThreads;
             m_writeQueue.pop();
             continue;
@@ -61,7 +60,6 @@ void ThreadPool::Queue::allocate()
             if (m_isSerial == true)
             {
                 m_operateQueue.front().operation.get()->operate(*this, m_operateQueue.front().parameters);
-                --m_numberOfAvailableThreads;
                 m_operateQueue.pop();
                 continue;
             }
@@ -71,7 +69,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Operate operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_operateQueueMutex);
-            std::thread(operateThread, std::ref(*this), m_operateQueue.front());
+            m_threadVector.push_back(std::thread(operateThread, std::ref(*this), m_operateQueue.front()));
             --m_numberOfAvailableThreads;
             m_operateQueue.pop();
             continue;
@@ -85,7 +83,6 @@ void ThreadPool::Queue::allocate()
             if (m_isSerial == true)
             {
                 m_readQueue.front().reader.get()->readMessage(*this, m_readQueue.front().parameters);
-                --m_numberOfAvailableThreads;
                 m_readQueue.pop();
                 continue;
             }
@@ -95,7 +92,7 @@ void ThreadPool::Queue::allocate()
             //then create a thread to do the Read operation. Also, update the
             //number of available threads.
             std::unique_lock<std::mutex> lock(m_readQueueMutex);
-            std::thread(readThread, std::ref(*this), m_readQueue.front());
+            m_threadVector.push_back(std::thread(readThread, std::ref(*this), m_readQueue.front()));
             --m_numberOfAvailableThreads;
             m_readQueue.pop();
             continue;
@@ -137,6 +134,7 @@ void ThreadPool::Queue::wait()
         }
 
         checkActiveFd();
+        joinThreads();
     }
 }
 
@@ -237,7 +235,18 @@ void ThreadPool::operateThread(Queue &queue, const operate operate)
     operate.operation.get()->operate(queue, operate.parameters);
 }
 
-void ThreadPool::Queue::addAvailableThread()
+void ThreadPool::Queue::joinThreads()
 {
-    ++m_numberOfAvailableThreads;
+    if (m_isSerial)
+    {
+        return;
+    }
+
+    for_each(m_threadVector.begin(), m_threadVector.end(), [this](std::thread &t1) {
+        if (t1.joinable())
+        {
+            t1.join();
+            ++m_numberOfAvailableThreads;
+        }
+    });
 }
