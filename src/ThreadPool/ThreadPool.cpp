@@ -36,7 +36,7 @@ void ThreadPool::Queue::allocate()
             //in the queue using the main thread.
             if (m_isSerial == true)
             {
-                m_writeQueue.front().writer.get()->write(*this, m_writeQueue.front().parameters);
+                m_writeQueue.front().writer.get()->writeMessage(*this, m_writeQueue.front().parameters);
                 --m_numberOfAvailableThreads;
                 m_writeQueue.pop();
                 continue;
@@ -84,7 +84,7 @@ void ThreadPool::Queue::allocate()
             //in the queue using the main thread.
             if (m_isSerial == true)
             {
-                m_readQueue.front().reader.get()->read(*this, m_readQueue.front().parameters);
+                m_readQueue.front().reader.get()->readMessage(*this, m_readQueue.front().parameters);
                 --m_numberOfAvailableThreads;
                 m_readQueue.pop();
                 continue;
@@ -183,6 +183,7 @@ void ThreadPool::Queue::checkActiveFd()
 
     if (activity < 0)
     {
+        close(m_sockfd);
         throw std::system_error{errno, std::system_category()};
     }
 
@@ -201,7 +202,7 @@ void ThreadPool::Queue::checkActiveFd()
 
         //add the new communication to the "Wait For Read" Queue
         ThreadPool::WaitForReadCreator waitFroReadCreator;
-        waitFroReadCreator.addToQueue(*this, {std::time(nullptr), new_socket, "First Read", ""});
+        waitFroReadCreator.addToQueue(*this, {std::time(nullptr), VERSION, new_socket, "First Read", ""});
     }
 
     {
@@ -213,7 +214,7 @@ void ThreadPool::Queue::checkActiveFd()
             if (FD_ISSET(m_waitForReadVector[i].sockfd, &readfds))
             {
                 //add the communication to the "Read" queue
-                m_mapCreator.get()->atReadMap(m_waitForReadVector[i].readType).get()->addToQueue(*this, {m_waitForReadVector[i].lastReadData, m_waitForReadVector[i].sockfd});
+                m_mapCreator.get()->atReadMap(m_waitForReadVector[i].readType).get()->addToQueue(*this, {m_waitForReadVector[i].operateToCreate, m_waitForReadVector[i].version, m_waitForReadVector[i].sockfd});
                 m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
             }
         }
@@ -222,12 +223,12 @@ void ThreadPool::Queue::checkActiveFd()
 
 void ThreadPool::readThread(Queue &queue, const read read)
 {
-    read.reader.get()->read(queue, read.parameters);
+    read.reader.get()->readMessage(queue, read.parameters);
 }
 
 void ThreadPool::writeThread(Queue &queue, const write write)
 {
-    write.writer.get()->write(queue, write.parameters);
+    write.writer.get()->writeMessage(queue, write.parameters);
 }
 
 void ThreadPool::operateThread(Queue &queue, const operate operate)
