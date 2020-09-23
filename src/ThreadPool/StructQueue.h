@@ -28,9 +28,10 @@ namespace ThreadPool
     struct waitForRead
     {
         time_t lastReadTime;
+        double version;
         int sockfd;
         std::string_view readType;
-        std::string_view lastReadData;
+        std::string_view operateToCreate;
     };
 
     struct read
