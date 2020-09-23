@@ -6,6 +6,8 @@
 
 #include "Communication.h"
 
+#include "../ThreadPool/ThreadPool.h"
+
 #include <cmath>
 #include <system_error>
 #include <thread>
@@ -78,7 +80,7 @@ void Communication::connect(const int argc, const char *const argv[])
   }
   else if ((isSerial = (strcmp(argv[argc - 1], "serial") == 0)) == true)
   {
-    backlog = 5;
+    backlog = 3;
   }
   else
   {
@@ -92,17 +94,7 @@ void Communication::connect(const int argc, const char *const argv[])
     THROW_SYSTEM_ERROR();
   }
 
-  int new_socket, addrlen{sizeof(connectAddress)};
-  if ((new_socket = accept(sockfd, (struct sockaddr *)&connectAddress,
-                           (socklen_t *)&addrlen)) < 0)
-  {
-    close(sockfd);
-    THROW_SYSTEM_ERROR();
-  }
-
-  char buffer[1024]{{0}};
-  read(new_socket, buffer, 1024);
-  printf("%s\n", buffer);
-  send(new_socket, "good", strlen("good"), 0);
-  printf("Hello message sent\n");
+  unsigned int numberOfThreads = ((isSerial == true) ? 1 : std::thread::hardware_concurrency());
+  ThreadPool::Queue queue{sockfd, connectAddress, numberOfThreads};
+  queue.allocate();
 }
