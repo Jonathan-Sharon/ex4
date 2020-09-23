@@ -163,6 +163,7 @@ void ThreadPool::Queue::checkActiveFd()
             {
                 m_waitForReadVector.erase(m_waitForReadVector.begin() + i);
                 close(m_waitForReadVector[i].sockfd);
+                continue;
             }
 
             //add to read list
