@@ -26,6 +26,15 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
 
     buffer.erase(buffer.begin(), buffer.begin() + sizeof(FIRST_WORD) / sizeof(char));
 
+    try
+    {
+        queue.m_mapCreator.get()->atOperateMap(buffer);
+    }
+    catch (std::exception &e)
+    {
+        WriteError(queue, info, 6);
+    }
+
     const char *bufferInChar{buffer.c_str()};
     char newBuffer[BUFFER_SIZE];
     strcpy(newBuffer, bufferInChar);
@@ -114,7 +123,7 @@ uint Read::removeSpacesAndTabs(std::string &str)
     }
     else
     {
-        str.erase(str.begin() + i - 1, str.end());
+        str.erase(str.begin() + i, str.end());
     }
 
     return numberOfSpaces;
