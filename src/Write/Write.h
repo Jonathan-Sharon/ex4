@@ -31,4 +31,6 @@ namespace Write
     {
         virtual void writeMessage(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const override;
     };
+
+    void WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode);
 } // namespace Write
