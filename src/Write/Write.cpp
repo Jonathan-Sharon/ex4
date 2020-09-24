@@ -6,11 +6,11 @@
 
 void Write::FirstWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const
 {
-    std::string_view toWrite{"Great!"};
+    std::string toWrite{*info.result.get()};
     if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0)
     {
         ThreadPool::ErrorWriteCreator errorWriteCreate;
-        errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, 1});
+        errorWriteCreate.addToQueue(queue, {std::make_shared<std::string>(""), info.version, info.sockfd, 1});
         return;
     }
     close(info.sockfd);
