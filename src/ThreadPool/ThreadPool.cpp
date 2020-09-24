@@ -11,13 +11,13 @@
 #include <functional>
 
 ThreadPool::Queue::Queue(const int sockfd, const sockaddr_in connectAddress,
-                         const unsigned int numberOfThreads) : m_sockfd{sockfd},
+                         const unsigned int numberOfThreads) : m_mapCreator{std::make_unique<MapCreator::MapCreator>()},
+                                                               m_sockfd{sockfd},
                                                                m_connectAddress{connectAddress},
                                                                m_numberOfThreads{numberOfThreads},
                                                                m_isSerial{numberOfThreads == 1},
                                                                m_isThereSomethingToRead{false},
-                                                               m_numberOfAvailableThreads{numberOfThreads - 1},
-                                                               m_mapCreator{std::make_unique<MapCreator::MapCreator>()}
+                                                               m_numberOfAvailableThreads{numberOfThreads - 1}
 {
 }
 

@@ -39,6 +39,7 @@ namespace ThreadPool
          * 
          */
         void allocate();
+        std::unique_ptr<MapCreator::MapCreator> m_mapCreator;
 
     private:
         static constexpr int TIME_TO_CLOSE = 5;
@@ -70,8 +71,6 @@ namespace ThreadPool
 
         std::atomic_bool m_isThereSomethingToRead;
         std::atomic_uint m_numberOfAvailableThreads;
-
-        std::unique_ptr<MapCreator::MapCreator> m_mapCreator;
 
         std::queue<read> m_readQueue;
         std::vector<waitForRead> m_waitForReadVector;
