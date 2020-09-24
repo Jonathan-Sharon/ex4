@@ -8,6 +8,11 @@ namespace ThreadPool
     class Queue;
 }
 
+namespace Write
+{
+    void WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode);
+}
+
 namespace Read
 {
     class Read
@@ -30,5 +35,6 @@ namespace Read
     };
 
     uint removeSpacesAndTabs(std::string &str);
-    inline void CreateErrorWrite(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode);
+    void WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode);
+
 } // namespace Read

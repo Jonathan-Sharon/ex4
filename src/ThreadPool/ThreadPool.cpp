@@ -134,7 +134,11 @@ void ThreadPool::Queue::wait()
         }
 
         checkActiveFd();
-        joinThreads();
+
+        if (m_isSerial == true)
+        {
+            joinThreads();
+        }
     }
 }
 
@@ -237,10 +241,6 @@ void ThreadPool::operateThread(Queue &queue, const operate operate)
 
 void ThreadPool::Queue::joinThreads()
 {
-    if (m_isSerial)
-    {
-        return;
-    }
 
     for_each(m_threadVector.begin(), m_threadVector.end(), [this](std::thread &t1) {
         if (t1.joinable())

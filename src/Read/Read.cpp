@@ -14,7 +14,7 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
     //CHecks if an error happened. If so, it calls to Error Write
     if (valread < 0)
     {
-        CreateErrorWrite(queue, info, 1);
+        WriteError(queue, info, 1);
         return;
     }
 
@@ -30,13 +30,13 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
 
     if (removeSpacesAndTabs(buffer) != 2)
     {
-        CreateErrorWrite(queue, info, 2);
+        WriteError(queue, info, 2);
         return;
     }
 
     if (buffer.find_first_of(FIRST_WORD) != 0)
     {
-        CreateErrorWrite(queue, info, 3);
+        WriteError(queue, info, 3);
         return;
     }
 
@@ -53,14 +53,18 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
             return c != '\n';
         }))
     {
-        CreateErrorWrite(queue, info, 4);
+        WriteError(queue, info, 4);
         return;
     }
 
     buffer.erase(buffer.end() - 3, buffer.end());
 
+    const char *bufferInChar{buffer.c_str()};
+    char newBuffer[1024];
+    strcpy(newBuffer, bufferInChar);
+
     ThreadPool::FirstWriteCreator firstWriteCreator;
-    firstWriteCreator.addToQueue(queue, {std::make_shared<std::string>("hello"),
+    firstWriteCreator.addToQueue(queue, {std::make_shared<std::string_view>(newBuffer),
                                          info.version, info.sockfd, 0});
 }
 
@@ -141,8 +145,8 @@ uint Read::removeSpacesAndTabs(std::string &str)
     return numberOfSpaces;
 }
 
-inline void Read::CreateErrorWrite(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode)
+inline void Read::WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode)
 {
     ThreadPool::ErrorWriteCreator errorWriteCreate;
-    errorWriteCreate.addToQueue(queue, {std::make_shared<std::string>(""), info.version, info.sockfd, errorCode});
+    errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, errorCode});
 }
