@@ -205,7 +205,7 @@ void ThreadPool::Queue::checkActiveFd()
 
         //add the new communication to the "Wait For Read" Queue
         ThreadPool::WaitForReadCreator waitFroReadCreator;
-        waitFroReadCreator.addToQueue(*this, {std::time(nullptr), VERSION, new_socket, "First Read", ""});
+        waitFroReadCreator.addToQueue(*this, {std::time(nullptr), VERSION, new_socket, "FIRST READ", ""});
     }
 
     {

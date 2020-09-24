@@ -10,8 +10,7 @@ void Write::FirstWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool:
                         "status: 0\r\nresponse-length: 0\r\n\r\n"};
     if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0)
     {
-        ThreadPool::ErrorWriteCreator errorWriteCreate;
-        errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, 5});
+        WriteError(queue, info, 5);
         return;
     }
     close(info.sockfd);
@@ -29,7 +28,7 @@ void Write::ErrorWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool:
     std::cout << info.sockfd << std::endl;
 }
 
-inline void Write::WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode)
+inline void Write::WriteError(ThreadPool::Queue &queue, const ThreadPool::writeParameters info, uint errorCode)
 {
     ThreadPool::ErrorWriteCreator errorWriteCreate;
     errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, errorCode});

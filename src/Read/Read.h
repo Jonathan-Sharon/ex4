@@ -8,11 +8,6 @@ namespace ThreadPool
     class Queue;
 }
 
-namespace Write
-{
-    void WriteError(ThreadPool::Queue &queue, const ThreadPool::readParameters info, uint errorCode);
-}
-
 namespace Read
 {
     class Read
