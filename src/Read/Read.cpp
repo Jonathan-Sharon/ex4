@@ -9,26 +9,10 @@
 void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::readParameters info) const
 {
     std::string buffer(BUFFER_SIZE, '\0');
-    const auto valread = read(info.sockfd, buffer.data(), buffer.size() - 1);
+    defaultRead(queue, info, buffer);
 
-    //CHecks if an error happened. If so, it calls to Error Write
-    if (valread < 0)
-    {
-        WriteError(queue, info, 1);
-        return;
-    }
-
-    //Check if the client's write was for closing
-    if (valread == 0)
-    {
-        close(info.sockfd);
-    }
-
-    buffer.resize(valread);
-
-    transform(buffer.begin(), buffer.end(), buffer.begin(), ::toupper);
-
-    if (removeSpacesAndTabs(buffer) != 2)
+    uint numberOfSpaces = removeSpacesAndTabs(buffer);
+    if (numberOfSpaces != 2 && numberOfSpaces != 1)
     {
         WriteError(queue, info, 2);
         return;
@@ -42,25 +26,8 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
 
     buffer.erase(buffer.begin(), buffer.begin() + sizeof(FIRST_WORD) / sizeof(char));
 
-    bool even{true};
-    if (std::any_of(buffer.end() - 3, buffer.end(), [&even](char &c) {
-            if (even)
-            {
-                even = false;
-                return c != '\r';
-            }
-            even = true;
-            return c != '\n';
-        }))
-    {
-        WriteError(queue, info, 4);
-        return;
-    }
-
-    buffer.erase(buffer.end() - 3, buffer.end());
-
     const char *bufferInChar{buffer.c_str()};
-    char newBuffer[1024];
+    char newBuffer[BUFFER_SIZE];
     strcpy(newBuffer, bufferInChar);
 
     ThreadPool::FirstWriteCreator firstWriteCreator;
@@ -70,8 +37,16 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::re
 
 void Read::SecondRead::readMessage(ThreadPool::Queue &queue, const ThreadPool::readParameters info) const
 {
-    queue.allocate();
-    std::cout << info.sockfd << std::endl;
+    std::string buffer(BUFFER_SIZE, '\0');
+    defaultRead(queue, info, buffer);
+
+    const char *bufferInChar{buffer.c_str()};
+    char newBuffer[BUFFER_SIZE];
+    strcpy(newBuffer, bufferInChar);
+
+    ThreadPool::OperateCreator *operateCreator = queue.m_mapCreator.get()->atOperateMap(info.operateToCreate).get();
+    operateCreator->addToQueue(queue, {std::make_shared<std::string_view>(newBuffer),
+                                       info.version, info.sockfd});
 }
 
 uint Read::removeSpacesAndTabs(std::string &str)
@@ -149,4 +124,43 @@ inline void Read::WriteError(ThreadPool::Queue &queue, const ThreadPool::readPar
 {
     ThreadPool::ErrorWriteCreator errorWriteCreate;
     errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, errorCode});
+}
+
+void Read::defaultRead(ThreadPool::Queue &queue, const ThreadPool::readParameters info, std::string &buffer)
+{
+    const auto valread = read(info.sockfd, buffer.data(), buffer.size() - 1);
+
+    //Checks if an error happened. If so, it calls to Error Write
+    if (valread < 0)
+    {
+        WriteError(queue, info, 1);
+        return;
+    }
+
+    //Check if the client's write was for closing
+    if (valread == 0)
+    {
+        close(info.sockfd);
+    }
+
+    buffer.resize(valread);
+
+    transform(buffer.begin(), buffer.end(), buffer.begin(), ::toupper);
+
+    bool even{true};
+    if (std::any_of(buffer.end() - 4, buffer.end(), [&even](char &c) {
+            if (even)
+            {
+                even = false;
+                return c != '\r';
+            }
+            even = true;
+            return c != '\n';
+        }))
+    {
+        WriteError(queue, info, 4);
+        return;
+    }
+
+    buffer.erase(buffer.end() - 4, buffer.end());
 }
