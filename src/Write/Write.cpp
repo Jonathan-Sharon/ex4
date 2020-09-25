@@ -6,53 +6,53 @@
 
 #include <iostream>
 
-void Write::FirstWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const
-{
-    std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
-                        "status: 0\r\nresponse-length: 0\r\n\r\n"};
-    if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0)
-    {
-        WriteError(queue, info, 5);
-        return;
-    }
-
-    //add the new communication to the "Wait For Read" Queue
-    ThreadPool::WaitForReadCreator waitFroReadCreator;
-    waitFroReadCreator.addToQueue(queue, {std::time(nullptr), info.version, info.sockfd,
-                                          "SECOND READ", *info.result.get()});
-}
-
-void Write::SecondWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const
-{
-    std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
-                        "status: 0\r\n" +
-                        "response-length : 0\r\n\r\n " +
-                        std::string(*info.result.get())};
-
-    if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0)
-    {
-        WriteError(queue, info, 5);
-        return;
-    }
-    close(info.sockfd);
+void Write::FirstWrite::writeMessage(
+    ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const {
+  std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
+                      "status: 0\r\nresponse-length: 0\r\n\r\n"};
+  if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0) {
+    WriteError(queue, info, 5);
     return;
-    queue.allocate();
+  }
+
+  // add the new communication to the "Wait For Read" Queue
+  ThreadPool::WaitForReadCreator waitFroReadCreator;
+  waitFroReadCreator.addToQueue(queue,
+                                {std::time(nullptr), info.version, info.sockfd,
+                                 "SECOND READ", info.result});
 }
 
-void Write::ErrorWrite::writeMessage(ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const
-{
-    std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
-                        "status: " + std::to_string(info.errorCode) + "\r\n" +
-                        "response-length : 0\r\n\r\n "};
-    write(info.sockfd, toWrite.data(), toWrite.length());
+void Write::SecondWrite::writeMessage(
+    ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const {
+  std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
+                      "status: 0\r\n" + "response-length : 0\r\n\r\n" +
+                      std::string(info.result)};
 
-    close(info.sockfd);
+  if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0) {
+    WriteError(queue, info, 5);
     return;
-    queue.allocate();
+  }
+  close(info.sockfd);
+  return;
+  queue.allocate();
 }
 
-inline void Write::WriteError(ThreadPool::Queue &queue, const ThreadPool::writeParameters info, uint errorCode)
-{
-    ThreadPool::ErrorWriteCreator errorWriteCreate;
-    errorWriteCreate.addToQueue(queue, {std::make_shared<std::string_view>(""), info.version, info.sockfd, errorCode});
+void Write::ErrorWrite::writeMessage(
+    ThreadPool::Queue &queue, const ThreadPool::writeParameters info) const {
+  std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
+                      "status: " + std::to_string(info.errorCode) + "\r\n" +
+                      "response-length : 0\r\n\r\n "};
+  write(info.sockfd, toWrite.data(), toWrite.length());
+
+  close(info.sockfd);
+  return;
+  queue.allocate();
+}
+
+inline void Write::WriteError(ThreadPool::Queue &queue,
+                              const ThreadPool::writeParameters info,
+                              uint errorCode) {
+  ThreadPool::ErrorWriteCreator errorWriteCreate;
+  errorWriteCreate.addToQueue(queue,
+                              {"", info.version, info.sockfd, errorCode});
 }
