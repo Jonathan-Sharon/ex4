@@ -32,7 +32,7 @@ add_executable(ex4.out
                 )
 
 # add the thread library
-target_link_libraries(ex4.out pthread)
+target_link_libraries(ex4.out pthread matrix)
 
 # add the folders of the .h files (to be able to include them)
 target_include_directories(ex4.out PUBLIC
