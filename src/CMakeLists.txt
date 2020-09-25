@@ -25,6 +25,10 @@ add_executable(ex4.out
                 Read/Read.cpp
                 Write/Write.cpp
                 Operations/Operate.cpp
+                Operations/Matrix/Matrix.cpp
+                Operations/Matrix/MatrixErrorCode.cpp
+                Operations/Graph/Graph.cpp
+
                 )
 
 # add the thread library

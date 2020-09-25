@@ -13,12 +13,12 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue,
 
   uint numberOfSpaces = removeSpacesAndTabs(buffer);
   if (numberOfSpaces != 2 && numberOfSpaces != 1) {
-    WriteError(queue, info, 2);
+    WriteError(queue, info, 3);
     return;
   }
 
   if (buffer.find_first_of(FIRST_WORD) != 0) {
-    WriteError(queue, info, 3);
+    WriteError(queue, info, 4);
     return;
   }
 
@@ -28,7 +28,7 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue,
   try {
     queue.m_mapCreator.get()->atOperateMap(buffer);
   } catch (std::exception &e) {
-    WriteError(queue, info, 6);
+    WriteError(queue, info, 7);
   }
 
   std::string *newBuffer = new std::string(buffer);
@@ -107,7 +107,7 @@ uint Read::removeSpacesAndTabs(std::string &str) {
   if (i <= 1) {
     str.erase(str.begin() + i, str.end());
   } else {
-    str.erase(str.begin() + i, str.end());
+    str.erase(str.begin() + i - 1, str.end());
   }
 
   return numberOfSpaces;
@@ -128,7 +128,7 @@ void Read::defaultRead(ThreadPool::Queue &queue,
 
   // Checks if an error happened. If so, it calls to Error Write
   if (valread < 0) {
-    WriteError(queue, info, 1);
+    WriteError(queue, info, 2);
     return;
   }
 
@@ -150,7 +150,7 @@ void Read::defaultRead(ThreadPool::Queue &queue,
         even = true;
         return c != '\n';
       })) {
-    WriteError(queue, info, 4);
+    WriteError(queue, info, 5);
     return;
   }
 

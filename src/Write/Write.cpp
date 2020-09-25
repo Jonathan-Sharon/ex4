@@ -11,7 +11,7 @@ void Write::FirstWrite::writeMessage(
   std::string toWrite{"Version: " + std::to_string(info.version) + "\r\n" +
                       "status: 0\r\nresponse-length: 0\r\n\r\n"};
   if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0) {
-    WriteError(queue, info, 5);
+    WriteError(queue, info, 6);
     return;
   }
 
@@ -29,7 +29,7 @@ void Write::SecondWrite::writeMessage(
                       std::string(info.result)};
 
   if (write(info.sockfd, toWrite.data(), toWrite.length()) < 0) {
-    WriteError(queue, info, 5);
+    WriteError(queue, info, 6);
     return;
   }
   close(info.sockfd);
