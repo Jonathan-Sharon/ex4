@@ -9,22 +9,27 @@
 void Read::FirstRead::readMessage(ThreadPool::Queue &queue,
                                   const ThreadPool::readParameters info) const {
   std::string buffer(BUFFER_SIZE, '\0');
+  // read the string
   defaultRead(queue, info, buffer);
 
+  // check if the number of spaces is 1 or 2. If not, call an error
   uint numberOfSpaces = removeSpacesAndTabs(buffer);
   if (numberOfSpaces != 2 && numberOfSpaces != 1) {
     WriteError(queue, info, 3);
     return;
   }
 
+  // check if the string starts with solve.
   if (buffer.find_first_of(FIRST_WORD) != 0) {
     WriteError(queue, info, 4);
     return;
   }
 
+  // earse the solve
   buffer.erase(buffer.begin(),
                buffer.begin() + sizeof(FIRST_WORD) / sizeof(char));
 
+  // check if there is an operation with the name we were given
   try {
     queue.m_mapCreator.get()->atOperateMap(buffer);
   } catch (std::exception &e) {
@@ -34,6 +39,7 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue,
 
   std::string *newBuffer = new std::string(buffer);
 
+  // call for the first write
   ThreadPool::FirstWriteCreator firstWriteCreator;
   firstWriteCreator.addToQueue(queue,
                                {*newBuffer, info.version, info.sockfd, 0});
@@ -42,12 +48,14 @@ void Read::FirstRead::readMessage(ThreadPool::Queue &queue,
 void Read::SecondRead::readMessage(
     ThreadPool::Queue &queue, const ThreadPool::readParameters info) const {
   std::string buffer(BUFFER_SIZE, '\0');
+  // read
   defaultRead(queue, info, buffer);
 
   removeSpacesAndTabs(buffer);
 
   std::string *newBuffer = new std::string(buffer);
 
+  // call for the appropriate operation
   ThreadPool::OperateCreator *operateCreator =
       queue.m_mapCreator.get()->atOperateMap(info.operateToCreate).get();
   operateCreator->addToQueue(queue, {*newBuffer, info.version, info.sockfd});
@@ -118,6 +126,7 @@ inline void Read::WriteError(ThreadPool::Queue &queue,
                              const ThreadPool::readParameters info,
                              uint errorCode) {
   ThreadPool::ErrorWriteCreator errorWriteCreate;
+  // add the Write Erro to the Queue.
   errorWriteCreate.addToQueue(
       queue, {std::string(""), info.version, info.sockfd, errorCode});
 }
@@ -138,8 +147,10 @@ void Read::defaultRead(ThreadPool::Queue &queue,
     close(info.sockfd);
   }
 
+  // resize the buffer
   buffer.resize(valread);
 
+  // change it to cpital letters
   transform(buffer.begin(), buffer.end(), buffer.begin(), ::toupper);
 
   bool even{true};
