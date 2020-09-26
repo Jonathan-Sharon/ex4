@@ -12,7 +12,7 @@ void Operate::DFS::operate(ThreadPool::Queue &queue,
     std::vector<std::vector<bool>> vector(
         graph.getHeight(), std::vector<bool>(graph.getWidth(), false));
     std::string result{""};
-    uint sum{0};
+    double sum{0};
 
     if (dfs(graph, result, vector, sum)) {
       ThreadPool::SecondWriteCreator secondWriteCreator;
@@ -34,7 +34,8 @@ void Operate::DFS::operate(ThreadPool::Queue &queue,
 }
 
 bool Operate::DFS::dfs(Graph::Graph &graph, std::string &result,
-                       std::vector<std::vector<bool>> &visit, uint &sum) const {
+                       std::vector<std::vector<bool>> &visit,
+                       double &sum) const {
 
   uint startPointX = graph.getStartPointX();
   uint startPointY = graph.getStartPointY();

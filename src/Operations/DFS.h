@@ -16,6 +16,6 @@ class DFS : public Operate {
                        const ThreadPool::operateParameters info) const override;
 
   bool dfs(Graph::Graph &graph, std::string &result,
-           std::vector<std::vector<bool>> &visit, uint &sum) const;
+           std::vector<std::vector<bool>> &visit, double &sum) const;
 };
 } // namespace Operate
