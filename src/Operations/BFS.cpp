@@ -66,7 +66,7 @@ void Operate::BFS::operate(ThreadPool::Queue &queue,
         objectQueue.push({{point.row, point.column + 1}, ",Right"});
       }
 
-      if (point.row - 1 < graph.getHeight() &&
+      if (int(point.row - 1) >= 0 &&
           visited.at(point.row - 1).at(point.column) == false &&
           graph.getValue(point.row - 1, point.column) != 0) {
 
@@ -74,7 +74,7 @@ void Operate::BFS::operate(ThreadPool::Queue &queue,
         objectQueue.push({{point.row - 1, point.column}, ",Up"});
       }
 
-      if (point.column - 1 < graph.getWidth() &&
+      if (int(point.column - 1) >= 0 &&
           visited.at(point.row).at(point.column - 1) == false &&
           graph.getValue(point.row, point.column - 1) != 0) {
 
