@@ -28,6 +28,7 @@ add_executable(ex4.out
                 Operations/Matrix/Matrix.cpp
                 Operations/Matrix/MatrixErrorCode.cpp
                 Operations/Graph/Graph.cpp
+                Operations/DFS.cpp
 
                 )
 
