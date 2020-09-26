@@ -45,7 +45,6 @@ Graph::Graph::Graph(const std::string_view &str) : m_matrix(1, 1) {
 
   std::vector<double> startPointValues{
       getRowValue(lastRowEnds + 2, startPointEndOfRow, 2, str, true, false)};
-
   m_startPoint = {uint(startPointValues.at(0)), uint(startPointValues.at(1))};
 
   // get the end point values
@@ -53,6 +52,13 @@ Graph::Graph::Graph(const std::string_view &str) : m_matrix(1, 1) {
       getRowValue(startPointEndOfRow + 2, str.size(), 2, str, true, true)};
 
   m_endPoint = {uint(endPointValues.at(0)), uint(endPointValues.at(1))};
+
+  if (m_startPoint.row >= m_matrix.getHeight() ||
+      m_startPoint.column >= m_matrix.getWidth() ||
+      m_endPoint.row >= m_matrix.getHeight() ||
+      m_endPoint.column >= m_matrix.getWidth()) {
+    throw std::runtime_error("invalid graph given");
+  }
 }
 
 uint Graph::Graph::getWidth() const { return m_matrix.getWidth(); }
@@ -100,6 +106,8 @@ Graph::Graph::getRowValue(const size_t rowStarts, const size_t rowEnds,
                                     std::begin(str) + nextComma);
     if (index == "b" || index == "B") {
       vector.push_back(0);
+      lastComma = nextComma;
+      continue;
     }
 
     try {
