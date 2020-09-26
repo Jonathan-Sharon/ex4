@@ -18,7 +18,7 @@ void Operate::BestFS::operate(ThreadPool::Queue &queue,
     if (bestFirstSearch(graph, result, vector, sum)) {
       ThreadPool::SecondWriteCreator secondWriteCreator;
       std::string *resultString =
-          new std::string(std::to_string(sum) + ",A*" + result);
+          new std::string(std::to_string(sum) + ",BestFS" + result);
       secondWriteCreator.addToQueue(
           queue, {*resultString, info.version, info.sockfd, 0});
     } else {
