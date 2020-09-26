@@ -12,15 +12,18 @@ Graph::Graph::Graph(const std::string_view &str) : m_matrix(1, 1) {
     throw std::runtime_error("invalid graph given");
   }
 
+  // get the matrix's sizes
   std::vector<double> matrixSizes{
       getRowValue(0, firstEndOfRow, 2, str, false, false)};
   uint32_t height = static_cast<uint32_t>(int(matrixSizes.at(0)));
   uint32_t width = static_cast<uint32_t>(int(matrixSizes.at(1)));
 
+  // create the matrix
   this->m_matrix = Matrix(height, width);
 
   size_t lastRowEnds{firstEndOfRow};
 
+  // read the string values and add them to the matrix
   for (uint32_t i = 0; i < height; ++i) {
     int column{0};
     size_t nextEndOfRow = str.find("\r\n", lastRowEnds + 2);
@@ -38,6 +41,7 @@ Graph::Graph::Graph(const std::string_view &str) : m_matrix(1, 1) {
     lastRowEnds = nextEndOfRow;
   }
 
+  // get the start point values
   size_t startPointEndOfRow = str.find("\r\n", lastRowEnds + 2);
   if (startPointEndOfRow == std::string::npos) {
     throw std::runtime_error("invalid graph given");
@@ -53,6 +57,7 @@ Graph::Graph::Graph(const std::string_view &str) : m_matrix(1, 1) {
 
   m_endPoint = {uint(endPointValues.at(0)), uint(endPointValues.at(1))};
 
+  // check if the values we were given are legal.
   if (m_startPoint.row >= m_matrix.getHeight() ||
       m_startPoint.column >= m_matrix.getWidth() ||
       m_endPoint.row >= m_matrix.getHeight() ||
