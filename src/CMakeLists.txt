@@ -24,12 +24,13 @@ add_executable(ex4.out
                 Factory/MapCreator.cpp
                 Read/Read.cpp
                 Write/Write.cpp
-                Operations/Operate.cpp
                 Operations/Matrix/Matrix.cpp
                 Operations/Matrix/MatrixErrorCode.cpp
                 Operations/Graph/Graph.cpp
                 Operations/DFS.cpp
-
+                Operations/BFS.cpp
+                Operations/AStar.cpp
+                Operations/BestFS.cpp
                 )
 
 # add the thread library
