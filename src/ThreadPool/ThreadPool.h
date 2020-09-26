@@ -60,7 +60,17 @@ private:
    */
   void checkActiveFd();
 
+  /**
+   * @brief join all available threads and update the number of available
+   * threads.
+   *
+   */
   void joinThreads();
+
+  /**
+   * @brief close the server
+   *
+   */
   void closeServer();
 
   const int m_sockfd;
@@ -98,8 +108,28 @@ private:
   friend class WaitForReadCreator;
 };
 
+/**
+ * @brief calls for the appropriate read function
+ *
+ * @param queue
+ * @param read
+ */
 void readThread(Queue &queue, const read read);
+
+/**
+ * @brief calls for the appropriate write function
+ *
+ * @param queue
+ * @param write
+ */
 void writeThread(Queue &queue, const write write);
+
+/**
+ * @brief calls for the appropriate operate function
+ *
+ * @param queue
+ * @param write
+ */
 void operateThread(Queue &queue, const operate operate);
 
 } // namespace ThreadPool

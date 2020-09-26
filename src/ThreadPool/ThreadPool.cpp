@@ -197,9 +197,7 @@ void ThreadPool::Queue::checkActiveFd() {
     for (int i{static_cast<int>(m_waitForReadVector.size() - 1)}; i >= 0; --i) {
       if (FD_ISSET(m_waitForReadVector[i].sockfd, &readfds)) {
         // add the communication to the "Read" queue
-        m_mapCreator.get()
-            ->atReadMap(m_waitForReadVector[i].readType)
-            .get()
+        m_mapCreator.get()->atReadMap(m_waitForReadVector[i].readType).get()
             ->addToQueue(*this, {m_waitForReadVector[i].operateToCreate,
                                  m_waitForReadVector[i].version,
                                  m_waitForReadVector[i].sockfd});
@@ -223,8 +221,8 @@ void ThreadPool::operateThread(Queue &queue, const operate operate) {
 
 void ThreadPool::Queue::joinThreads() {
 
-  for_each(m_threadVector.begin(), m_threadVector.end(),
-           [this](std::thread &t1) {
+  // join all threads
+  for_each(m_threadVector.begin(), m_threadVector.end(),[this](std::thread &t1) {
              if (t1.joinable()) {
                t1.join();
                ++m_numberOfAvailableThreads;
@@ -233,28 +231,34 @@ void ThreadPool::Queue::joinThreads() {
 }
 
 void ThreadPool::Queue::closeServer() {
+  //join all threads
   while (!m_threadVector.empty()) {
     joinThreads();
   }
 
+  //close all read open fd sockets
   for (uint i = 0; i < m_readQueue.size(); ++i) {
     close(m_readQueue.front().parameters.sockfd);
     m_readQueue.pop();
   }
 
+  //close all write open fd sockets
   for (uint i = 0; i < m_writeQueue.size(); ++i) {
     close(m_writeQueue.front().parameters.sockfd);
     m_writeQueue.pop();
   }
 
+  //close all operate open fd sockets
   for (uint i = 0; i < m_operateQueue.size(); ++i) {
     close(m_operateQueue.front().parameters.sockfd);
     m_operateQueue.pop();
   }
 
+  //close all wait for read open fd sockets
   std::for_each(m_waitForReadVector.begin(), m_waitForReadVector.end(),
                 [this](waitForRead &object) { close(object.sockfd); });
   m_waitForReadVector.clear();
 
+  //close the master socket
   close(m_sockfd);
 }
