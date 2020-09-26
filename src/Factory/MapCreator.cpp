@@ -10,10 +10,11 @@ MapCreator::MapCreator::MapCreator()
           {std::string_view{"ERROR WRITE"}, std::make_shared<ThreadPool::ErrorWriteCreator>()}},
 
       m_operateMapCreate{
+          {std::string_view{""}, std::make_shared<ThreadPool::AStarCreator>()},
           {std::string_view{"FIND-GRAPH-PATH DFS"}, std::make_shared<ThreadPool::DFSCreator>()},
           {std::string_view{"FIND-GRAPH-PATH BFS"}, std::make_shared<ThreadPool::BFSCreator>()},
           {std::string_view{"FIND-GRAPH-PATH BESTFS"}, std::make_shared<ThreadPool::BestFSCreator>()},
-          {std::string_view{"FIND-GRAPH-PATH ASTAR"}, std::make_shared<ThreadPool::AStarCreator>()}}
+          {std::string_view{"FIND-GRAPH-PATH A*"}, std::make_shared<ThreadPool::AStarCreator>()}}
 
 {
 }
